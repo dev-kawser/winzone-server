@@ -91,6 +91,23 @@ async function run() {
             res.send(result);
         })
 
+        // get admin user
+        app.get("/users/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            try {
+                const user = await userCollection.findOne({ email });
+                if (user && user.role === 'admin') {
+                    res.send({ admin: true });
+                } else {
+                    res.send({ admin: false });
+                }
+            } catch (error) {
+                res.status(500).send({ message: "Failed to check admin status", error });
+            }
+        });
+
+        
+
         // contest collection is here
 
         // Send a ping to confirm a successful connection
