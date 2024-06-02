@@ -106,7 +106,20 @@ async function run() {
             }
         });
 
-        
+        // get contest creator user
+        app.get("/users/creator/:email", async (req, res) => {
+            const email = req.params.email;
+            try {
+                const user = await userCollection.findOne({ email });
+                if (user && user.role === 'creator') {
+                    res.send({ creator: true });
+                } else {
+                    res.send({ creator: false });
+                }
+            } catch (error) {
+                res.status(500).send({ message: "Failed to check creator status", error });
+            }
+        });
 
         // contest collection is here
 
