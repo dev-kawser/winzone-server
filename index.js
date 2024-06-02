@@ -68,7 +68,20 @@ async function run() {
             }
         });
 
-        
+        // Block/Unblock user
+        app.patch("/users/block/:id", async (req, res) => {
+            const userId = req.params.id;
+            const { blocked } = req.body;
+            try {
+                const result = await userCollection.updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: { isBlocked: blocked } }
+                );
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ error: "An error occurred while updating the block status." });
+            }
+        });
 
         // Delete user
         app.delete("/users/:id", async (req, res) => {
