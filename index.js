@@ -53,6 +53,21 @@ async function run() {
             res.send(result)
         })
 
+        // Update user role
+        app.patch("/users/role/:id", async (req, res) => {
+            const userId = req.params.id;
+            const { role } = req.body;
+            try {
+                const result = await userCollection.updateOne(
+                    { _id: new ObjectId(userId) },
+                    { $set: { role: role } }
+                );
+                res.send(result);
+            } catch (error) {
+                res.status(500).send({ error: "An error occurred while updating the role." });
+            }
+        });
+
         
 
         // Delete user
