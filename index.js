@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -34,6 +34,8 @@ async function run() {
         const userCollection = client.db("contestDb").collection("users")
 
         // user collection is here
+
+        // add user
         app.post('/users', async (req, res) => {
             const user = req.body;
             const query = { email: user.email };
@@ -42,6 +44,22 @@ async function run() {
                 return res.send({ message: "User Already Exists", insertId: null })
             }
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+
+        // get user
+        app.get("/users", async (req, res) => {
+            const result = await userCollection.find().toArray()
+            res.send(result)
+        })
+
+        
+
+        // Delete user
+        app.delete("/users/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await userCollection.deleteOne(query);
             res.send(result);
         })
 
