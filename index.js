@@ -146,6 +146,27 @@ async function run() {
             res.send(result);
         })
 
+        // Update contest with comment
+        app.patch("/contests/:id", async (req, res) => {
+            const id = req.params.id;
+            const { comment } = req.body;
+
+            if (!comment) {
+                return res.status(400).send({ message: "Comment is required" });
+            }
+
+            try {
+                const result = await contestCollection.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: { comment: comment } }
+                );
+                res.send(result);
+            } catch (err) {
+                console.error(err);
+                res.status(500).send({ message: "Internal Server Error" });
+            }
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
