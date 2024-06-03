@@ -32,6 +32,7 @@ async function run() {
         // await client.connect();
 
         const userCollection = client.db("contestDb").collection("users")
+        const contestCollection = client.db("contestDb").collection("contests")
 
         // user collection is here
 
@@ -121,7 +122,15 @@ async function run() {
             }
         });
 
+        // ---------------------------------------------------------------------------------
+
         // contest collection is here
+
+        app.post('/contests', async (req, res) => {
+            const contest = req.body;
+            const result = await contestCollection.insertOne(contest);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
