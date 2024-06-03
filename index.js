@@ -132,10 +132,18 @@ async function run() {
             res.send(result);
         })
 
-        // get contes
+        // get contest
         app.get("/contests", async (req, res) => {
             const result = await contestCollection.find().toArray()
             res.send(result)
+        })
+
+        // Delete contest
+        app.delete("/contests/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contestCollection.deleteOne(query);
+            res.send(result);
         })
 
         // Send a ping to confirm a successful connection
