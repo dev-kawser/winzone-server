@@ -186,11 +186,19 @@ async function run() {
         });
 
         // get contest via email
-        app.get("/contests/:email", async (req, res) => {
+        app.get("/contests/email/:email", async (req, res) => {
             const email = req.params.email;
             const result = await contestCollection.find({ email: email }).toArray();
             res.send(result);
         });
+
+        // single contest
+        app.get("/contests/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await contestCollection.findOne(query);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
