@@ -216,10 +216,9 @@ async function run() {
 
         });
 
-        // -----------------
+        // ----------------------------------------------------------------------
 
         // PAYMENT INTENT
-
         app.post('/create-payment-intent', async (req, res) => {
 
             const { price } = req.body;
@@ -235,7 +234,36 @@ async function run() {
             })
         });
 
-        
+        // for register user
+        app.post('/register-contest', async (req, res) => {
+
+            const registrationDetails = req.body;
+            const result = await registerUserCollection.insertOne(registrationDetails);
+
+            const contestId = registrationDetails.contestId;
+
+            const filter = { _id: new ObjectId(contestId) };
+            const updateDoc = { $inc: { participantsCount: 1 } };
+
+            const updateResult = await contestCollection.updateOne(filter, updateDoc);
+
+            if (result.insertedId && updateResult.modifiedCount > 0) {
+                res.send({ success: true, message: "User registered and participant count incremented" });
+            } else {
+                res.send({ success: false, message: "Failed to register user or increment participant count" });
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
 
 
         // Send a ping to confirm a successful connection
