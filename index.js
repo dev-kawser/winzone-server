@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
@@ -36,6 +37,33 @@ async function run() {
         const contestCollection = client.db("contestDb").collection("contests")
         const registerUserCollection = client.db("contestDb").collection("registerUser")
 
+        // JWT related api
+
+        app.post("/jwt", async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "6hr" })
+            res.send({ token: token });
+        })
+
+        // middlewares
+
+        const verifyToken = (req, res, next) => {
+            if (!req.headers.authorization) {
+                return res.status(401).send({ message: "forbidden access" })
+            }
+            const token = req.headers.authorization.split(" ")[1]
+            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    return res.status(401).send({ message: "forbidden access" })
+                    // return res.redirect("/")
+                }
+                req.decoded = decoded;
+                next();
+            })
+        }
+
+
+
         // user collection is here
 
         // add user
@@ -51,7 +79,7 @@ async function run() {
         })
 
         // get user
-        app.get("/users", async (req, res) => {
+        app.get("/users", verifyToken, async (req, res) => {
             const result = await userCollection.find().toArray()
             res.send(result)
         })
