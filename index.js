@@ -301,6 +301,11 @@ async function run() {
             }
         });
 
+        // get register user
+        app.get("/register-contests", async (req, res) => {
+            const result = await registerUserCollection.find().toArray()
+            res.send(result)
+        })
 
 
 
