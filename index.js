@@ -62,6 +62,17 @@ async function run() {
             })
         }
 
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query);
+            const isAdmin = user?.role === 'admin';
+            if (!isAdmin) {
+                return res.status(403).send({ message: "forbidden access" })
+            }
+            next();
+        }
+
 
 
         // user collection is here
@@ -79,13 +90,13 @@ async function run() {
         })
 
         // get user
-        app.get("/users", verifyToken, async (req, res) => {
+        app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
             const result = await userCollection.find().toArray()
             res.send(result)
         })
 
         // Update user role
-        app.patch("/users/role/:id", async (req, res) => {
+        app.patch("/users/role/:id", verifyToken, verifyAdmin, async (req, res) => {
             const userId = req.params.id;
             const { role } = req.body;
             try {
@@ -100,7 +111,7 @@ async function run() {
         });
 
         // Block/Unblock user
-        app.patch("/users/block/:id", async (req, res) => {
+        app.patch("/users/block/:id", verifyToken, verifyAdmin, async (req, res) => {
             const userId = req.params.id;
             const { blocked } = req.body;
             try {
@@ -115,7 +126,7 @@ async function run() {
         });
 
         // Delete user
-        app.delete("/users/:id", async (req, res) => {
+        app.delete("/users/:id", verifyToken, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await userCollection.deleteOne(query);
@@ -123,7 +134,7 @@ async function run() {
         })
 
         // get admin user
-        app.get("/users/admin/:email", async (req, res) => {
+        app.get("/users/admin/:email", verifyToken, async (req, res) => {
             const email = req.params.email;
             try {
                 const user = await userCollection.findOne({ email });
@@ -138,7 +149,7 @@ async function run() {
         });
 
         // get contest creator user
-        app.get("/users/creator/:email", async (req, res) => {
+        app.get("/users/creator/:email", verifyToken, async (req, res) => {
             const email = req.params.email;
             try {
                 const user = await userCollection.findOne({ email });
@@ -169,7 +180,7 @@ async function run() {
         })
 
         // Delete contest
-        app.delete("/contests/:id", async (req, res) => {
+        app.delete("/contests/:id",verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await contestCollection.deleteOne(query);
@@ -177,7 +188,7 @@ async function run() {
         })
 
         // Update contest with comment
-        app.patch("/contests/:id", async (req, res) => {
+        app.patch("/contests/:id",verifyToken, async (req, res) => {
             const id = req.params.id;
             const { comment } = req.body;
 
@@ -198,7 +209,7 @@ async function run() {
         });
 
         // Update contest status
-        app.patch("/contests/:id/status", async (req, res) => {
+        app.patch("/contests/:id/status",verifyToken, async (req, res) => {
             const id = req.params.id;
             const { status } = req.body;
 
@@ -216,7 +227,7 @@ async function run() {
         });
 
         // get contest via email
-        app.get("/contests/email/:email", async (req, res) => {
+        app.get("/contests/email/:email",verifyToken, async (req, res) => {
             const email = req.params.email;
             const result = await contestCollection.find({ email: email }).toArray();
             res.send(result);
@@ -231,7 +242,7 @@ async function run() {
         })
 
         // Update contest
-        app.put("/contests/update/:id", async (req, res) => {
+        app.put("/contests/update/:id",verifyToken, async (req, res) => {
             const id = req.params.id;
             const updatedData = req.body;
             const filter = { _id: new ObjectId(id) };
@@ -247,7 +258,7 @@ async function run() {
         // ----------------------------------------------------------------------
 
         // PAYMENT INTENT
-        app.post('/create-payment-intent', async (req, res) => {
+        app.post('/create-payment-intent',verifyToken, async (req, res) => {
 
             const { price } = req.body;
             const amount = parseInt(price * 100);
@@ -263,7 +274,7 @@ async function run() {
         });
 
         // for register user
-        app.post('/register-contest', async (req, res) => {
+        app.post('/register-contest',verifyToken, async (req, res) => {
 
             const registrationDetails = req.body;
             const result = await registerUserCollection.insertOne(registrationDetails);
