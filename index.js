@@ -302,10 +302,24 @@ async function run() {
         });
 
         // get register user
-        app.get("/register-contests", async (req, res) => {
+        app.get("/register-contests",verifyToken, async (req, res) => {
             const result = await registerUserCollection.find().toArray()
             res.send(result)
         })
+
+
+        app.put("/register-contests/update/:submissionId",verifyToken, async (req, res) => {
+            const submissionId = req.params.submissionId;
+            const { winner } = req.body;
+            const filter = { _id: new ObjectId(submissionId) };
+            const updateDoc = {
+                $set: { winner: winner }
+            };
+            const result = await registerUserCollection.updateOne(filter, updateDoc);
+            res.send(result);
+
+        });
+
 
 
 
