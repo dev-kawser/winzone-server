@@ -317,7 +317,6 @@ async function run() {
             res.send(result);
         });
 
-
         app.put("/register-contests/update/:submissionId", verifyToken, async (req, res) => {
             const submissionId = req.params.submissionId;
             const { winner } = req.body;
@@ -337,6 +336,25 @@ async function run() {
             res.send(result);
 
         });
+
+        // updating contest registration
+        app.patch("/register-contests/:id", verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const { submittedTask, participate } = req.body;
+
+            const result = await registerUserCollection.updateOne(
+                { _id: new ObjectId(id) },
+                {
+                    $set: {
+                        submittedTask: submittedTask,
+                        participate: participate,
+                    },
+                }
+            );
+
+            res.send(result);
+        });
+
 
 
 
