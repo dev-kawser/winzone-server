@@ -102,6 +102,17 @@ async function run() {
             const result = await userCollection.findOne({ email: email });
             res.send(result)
         })
+        // Update user profile
+        app.patch("/users/profile/:email", verifyToken, async (req, res) => {
+            const email = req.params.email;
+            const updatedData = req.body;
+            const result = await userCollection.updateOne(
+                { email },
+                { $set: updatedData }
+            );
+            res.send(result);
+        });
+
 
         // Update user role
         app.patch("/users/role/:id", verifyToken, verifyAdmin, async (req, res) => {
