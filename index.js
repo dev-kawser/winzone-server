@@ -317,6 +317,16 @@ async function run() {
             res.send(result);
         });
 
+        // get register user by email and true
+        app.get("/register-contests/email/winner/:email", verifyToken, async (req, res) => {
+            const userEmail = req.params.email;
+            const result = await registerUserCollection.find({
+                email: userEmail,
+                winner: true
+            }).toArray();
+            res.send(result);
+        });
+
         app.put("/register-contests/update/:submissionId", verifyToken, async (req, res) => {
             const submissionId = req.params.submissionId;
             const { winner } = req.body;
