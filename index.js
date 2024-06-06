@@ -302,16 +302,34 @@ async function run() {
         });
 
         // get register user
-        app.get("/register-contests",verifyToken, async (req, res) => {
+        app.get("/register-contests", verifyToken, async (req, res) => {
             const result = await registerUserCollection.find().toArray()
             res.send(result)
         })
 
+        // get register user by email 
+        app.get("/register-contests/email/:email", verifyToken, async (req, res) => {
+            const userEmail = req.params.email;
+            const result = await registerUserCollection.find({
+                email: userEmail,
+                status: "Success"
+            }).toArray();
+            res.send(result);
+        });
 
-        app.put("/register-contests/update/:submissionId",verifyToken, async (req, res) => {
+
+        app.put("/register-contests/update/:submissionId", verifyToken, async (req, res) => {
             const submissionId = req.params.submissionId;
             const { winner } = req.body;
             const filter = { _id: new ObjectId(submissionId) };
+
+            // if (winner) {
+            //     await registerUserCollection.updateMany(
+            //         { contestId: new ObjectId(contestId), _id: { $ne: new ObjectId(submissionId) } },
+            //         { $set: { winner: false } },
+            //         { session }
+            //     );
+
             const updateDoc = {
                 $set: { winner: winner }
             };
