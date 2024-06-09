@@ -313,7 +313,7 @@ async function run() {
         });
 
         // get register user
-        app.get("/register-contests", verifyToken, async (req, res) => {
+        app.get("/register-contests", async (req, res) => {
             const result = await registerUserCollection.find().toArray()
             res.send(result)
         })
@@ -374,6 +374,34 @@ async function run() {
             );
 
             res.send(result);
+        });
+
+
+        // leaderBoard
+        app.get("/leaderBoard", async (req, res) => {
+
+            const leaderBoard = await registerUserCollection.aggregate([
+                {
+                    $match: { winner: true }
+                },
+                {
+                    $group: {
+                        _id: "$email",
+                        displayName: { $first: "$name" },
+                        email: { $first: "$email" },
+                        contestsWon: { $sum: 1 }
+                    }
+                },
+                {
+                    $sort: { contestsWon: -1 }
+                },
+                {
+                    $limit: 5
+                }
+            ]).toArray();
+
+            res.send(leaderBoard)
+
         });
 
 
