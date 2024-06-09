@@ -405,6 +405,22 @@ async function run() {
         });
 
 
+        // Get participations progress tracking
+        app.get("/participations-progress", async (req, res) => {
+            const progressData = await registerUserCollection.aggregate([
+                {
+                    $group: {
+                        _id: "$email",
+                        displayName: { $first: "$name" },
+                        totalContests: { $sum: 1 },
+                        totalWins: { $sum: { $cond: ["$winner", 1, 0] } }
+                    }
+                }
+            ]).toArray();
+            res.send(progressData);
+        });
+
+
 
 
 
